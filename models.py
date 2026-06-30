@@ -1,0 +1,34 @@
+from pydantic import BaseModel
+from enum import Enum
+from typing import Optional
+from datetime import datetime
+
+
+class ExpenseCategory(str, Enum):
+    FOOD = "food"
+    TRANSPORTATION = "transportation"
+    RENT = "rent"
+    ENTERTAINMENT = "entertainment"
+    UTILITIES = "utilities"
+    OTHER = "other"
+
+
+class ExpenseCreate(BaseModel):
+    description: str
+    amount: float
+    category: ExpenseCategory
+
+
+class ExpenseUpdate(BaseModel):
+    description: Optional[str] = None
+    amount: Optional[float] = None
+    category: Optional[ExpenseCategory] = None
+
+
+class Expense(BaseModel):
+    id: str
+    description: str
+    amount: float
+    category: ExpenseCategory
+    created_at: datetime
+    updated_at: datetime
