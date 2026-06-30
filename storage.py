@@ -23,20 +23,43 @@ class ExpenseStorage:
         return expense
 
     def get_expense(self, expense_id: str) -> Optional[Expense]:
-        raise NotImplementedError("TODO: Implement get_expense")
+        return self._expenses.get(expense_id)
 
     def update_expense(
         self,
         expense_id: str,
         updates: ExpenseUpdate,
     ) -> Optional[Expense]:
-        raise NotImplementedError("TODO: Implement update_expense")
+        expense = self._expenses.get(expense_id)        
+        if expense is None:
+            return None
+        if updates.amount is not None:
+            expense.amount = updates.amount
+        if updates.category is not None:
+            expense.category = updates.category
+        if updates.description is not None:
+            expense.description = updates.description
+        expense.updated_at = datetime.now(timezone.utc)
+        return expense
+
 
     def delete_expense(self, expense_id: str) -> bool:
-        raise NotImplementedError("TODO: Implement delete_expense")
+        expense = self._expenses.get(expense_id)
+        if expense is None:
+            return False
+        del self._expenses[expense_id]
+        return True
 
     def list_expenses(
         self,
         category: Optional[str] = None,
     ) -> List[Expense]:
-        raise NotImplementedError("TODO: Implement list_expenses")
+        expenses = list(self._expenses.values())
+        
+        if category is not None:
+            expenses = [
+                expense
+                for expense in expenses
+                if expense.category == category
+            ]
+        return expenses
