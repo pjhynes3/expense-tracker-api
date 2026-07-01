@@ -55,7 +55,11 @@ class ExpenseService:
         """
         Delete expense with cache cleanup.
         """
-        raise NotImplementedError("TODO: Implement delete_expense")
+
+        deleted = self.storage.delete_expense(expense_id)
+        if deleted:
+            cache_delete(f"expense:{expense_id}")
+        return deleted
 
     def list_expenses(
         self,
@@ -65,4 +69,4 @@ class ExpenseService:
         List expenses with optional category filtering.
         Do not cache list operations.
         """
-        raise NotImplementedError("TODO: Implement list_expenses")
+        return self.storage.list_expenses(category)
