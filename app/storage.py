@@ -107,12 +107,27 @@ class ExpenseStorage:
         self,
         category: Optional[str] = None,
     ) -> List[Expense]:
-        expenses = list(self._expenses.values())
+        db = SessionLocal()
         
+        query = db.query(ExpenseRow)
+
         if category is not None:
-            expenses = [
-                expense
-                for expense in expenses
-                if expense.category == category
-            ]
+            query = query.filter(ExpenseRow.category == category)
+
+        expense_rows = query.all()
+
+        expenses = [
+            Expense(
+            id=row.id,
+            description=row.description,
+            amount=row.amount,
+            category=ExpenseCategory(row.category),
+            created_at=row.created_at,
+            updated_at=row.updated_at,
+            )
+            for row in expense_rows
+        ]
+
+        db.close()
         return expenses
+        
