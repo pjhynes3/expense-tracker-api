@@ -1,8 +1,10 @@
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
+from .database import SessionLocal
+from .db_models import ExpenseRow
 import uuid
 
-from .models import Expense, ExpenseCreate, ExpenseUpdate
+from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory
 
 
 class ExpenseStorage:
@@ -11,16 +13,29 @@ class ExpenseStorage:
 
     def create_expense(self, expense_data: ExpenseCreate) -> Expense:
         now = datetime.now(timezone.utc)
-        expense = Expense(
-            id=str(uuid.uuid4()),
+        expense_row = ExpenseRow(
+            id = str(uuid.uuid4()),
             description=expense_data.description,
-            amount=expense_data.amount,
-            category=expense_data.category,
+            amount = expense_data.amount,
+            category = expense_data.category.value,
             created_at=now,
-            updated_at=now
+            updated_at=now,
         )
-        self._expenses[expense.id] = expense
-        return expense
+        
+        db = SessionLocal()
+        db.add(expense_row)
+        db.commit()
+        db.refresh(expense_row)
+        db.close()
+
+        return Expense(
+            id=expense_row.id,
+            description=expense_row.description,
+            amount=expense_row.amount,
+            category=ExpenseCategory(expense_row.category),
+            created_at=expense_row.created_at,
+            updated_at=expense_row.updated_at,
+        )
 
     def get_expense(self, expense_id: str) -> Optional[Expense]:
         return self._expenses.get(expense_id)
