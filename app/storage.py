@@ -60,24 +60,47 @@ class ExpenseStorage:
         expense_id: str,
         updates: ExpenseUpdate,
     ) -> Optional[Expense]:
-        expense = self._expenses.get(expense_id)        
-        if expense is None:
+        db = SessionLocal()
+        expense_row = (
+            db.query(ExpenseRow).filter(ExpenseRow.id==expense_id).first()
+        )
+        if expense_row is None:
+            db.close()
             return None
-        if updates.amount is not None:
-            expense.amount = updates.amount
-        if updates.category is not None:
-            expense.category = updates.category
         if updates.description is not None:
-            expense.description = updates.description
-        expense.updated_at = datetime.now(timezone.utc)
+            expense_row.description = updates.description
+        if updates.amount is not None:
+            expense_row.amount = updates.amount
+        if updates.category is not None:
+            expense_row.category = updates.category.value
+
+        expense_row.updated_at = datetime.now(timezone.utc)
+        db.commit()
+        db.refresh(expense_row)
+
+        expense = Expense(
+            id=expense_row.id,
+            description=expense_row.description,
+            amount=expense_row.amount,
+            category=ExpenseCategory(expense_row.category),
+            created_at=expense_row.created_at,
+            updated_at=expense_row.updated_at,
+        )
+        db.close()
         return expense
 
 
     def delete_expense(self, expense_id: str) -> bool:
-        expense = self._expenses.get(expense_id)
-        if expense is None:
+        db = SessionLocal()
+        expense_row = (
+            db.query(ExpenseRow).filter(ExpenseRow.id==expense_id).first()
+        )
+        if expense_row is None:
+            db.close()
             return False
-        del self._expenses[expense_id]
+        db.delete(expense_row)
+        db.commit() # make it official
+        db.close()
         return True
 
     def list_expenses(
