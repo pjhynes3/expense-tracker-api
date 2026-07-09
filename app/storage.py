@@ -38,7 +38,22 @@ class ExpenseStorage:
         )
 
     def get_expense(self, expense_id: str) -> Optional[Expense]:
-        return self._expenses.get(expense_id)
+        db = SessionLocal()
+        expense_row = (
+            db.query(ExpenseRow).filter(ExpenseRow.id == expense_id).first()
+        )
+        if expense_row is None:
+            db.close()
+            return None
+        db.close()
+        return Expense(
+            id = expense_row.id,
+            description=expense_row.description,
+            amount=expense_row.amount,
+            category=ExpenseCategory(expense_row.category),
+            created_at=expense_row.created_at,
+            updated_at=expense_row.updated_at,
+        )
 
     def update_expense(
         self,
