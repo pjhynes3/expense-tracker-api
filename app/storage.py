@@ -8,9 +8,6 @@ from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory
 
 
 class ExpenseStorage:
-    def __init__(self):
-        self._expenses: Dict[str, Expense] = {} # key -> expense:{expense_id} val -> Expense
-
     def create_expense(self, expense_data: ExpenseCreate) -> Expense:
         now = datetime.now(timezone.utc)
         expense_row = ExpenseRow(
