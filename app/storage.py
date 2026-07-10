@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import List, Optional
 from datetime import datetime, timezone
 from .database import SessionLocal
 from .db_models import ExpenseRow
@@ -8,6 +8,16 @@ from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory
 
 
 class ExpenseStorage:
+    def _row_to_expense(self, expense_row: ExpenseRow) -> Expense:
+        return Expense(
+            id=expense_row.id,
+            description=expense_row.description,
+            amount=expense_row.amount,
+            category=ExpenseCategory(expense_row.category),
+            created_at=expense_row.created_at,
+            updated_at=expense_row.updated_at,
+        )
+    
     def create_expense(self, expense_data: ExpenseCreate) -> Expense:
         now = datetime.now(timezone.utc)
         expense_row = ExpenseRow(
@@ -25,14 +35,8 @@ class ExpenseStorage:
         db.refresh(expense_row)
         db.close()
 
-        return Expense(
-            id=expense_row.id,
-            description=expense_row.description,
-            amount=expense_row.amount,
-            category=ExpenseCategory(expense_row.category),
-            created_at=expense_row.created_at,
-            updated_at=expense_row.updated_at,
-        )
+        expense = self._row_to_expense(expense_row)
+        return expense
 
     def get_expense(self, expense_id: str) -> Optional[Expense]:
         db = SessionLocal()
@@ -42,15 +46,9 @@ class ExpenseStorage:
         if expense_row is None:
             db.close()
             return None
+        expense = self._row_to_expense(expense_row)
         db.close()
-        return Expense(
-            id = expense_row.id,
-            description=expense_row.description,
-            amount=expense_row.amount,
-            category=ExpenseCategory(expense_row.category),
-            created_at=expense_row.created_at,
-            updated_at=expense_row.updated_at,
-        )
+        return expense
 
     def update_expense(
         self,
@@ -74,15 +72,7 @@ class ExpenseStorage:
         expense_row.updated_at = datetime.now(timezone.utc)
         db.commit()
         db.refresh(expense_row)
-
-        expense = Expense(
-            id=expense_row.id,
-            description=expense_row.description,
-            amount=expense_row.amount,
-            category=ExpenseCategory(expense_row.category),
-            created_at=expense_row.created_at,
-            updated_at=expense_row.updated_at,
-        )
+        expense = self._row_to_expense(expense_row)
         db.close()
         return expense
 
@@ -114,14 +104,7 @@ class ExpenseStorage:
         expense_rows = query.all()
 
         expenses = [
-            Expense(
-            id=row.id,
-            description=row.description,
-            amount=row.amount,
-            category=ExpenseCategory(row.category),
-            created_at=row.created_at,
-            updated_at=row.updated_at,
-            )
+            self._row_to_expense(row)
             for row in expense_rows
         ]
 
