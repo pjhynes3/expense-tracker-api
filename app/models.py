@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from enum import Enum
 from typing import Optional
 from datetime import datetime
@@ -35,3 +35,13 @@ class Expense(BaseModel):
     merchant: Optional[str] = None
     created_at: datetime
     updated_at: datetime
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    email: EmailStr
+    created_at: datetime
