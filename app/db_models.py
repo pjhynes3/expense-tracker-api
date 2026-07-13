@@ -8,5 +8,6 @@ class ExpenseRow(Base):
     description = Column(Text, nullable=False)
     amount = Column(Float, nullable=False)
     category = Column(String, nullable=False)
+    merchant = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True),nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=False)

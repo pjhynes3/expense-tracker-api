@@ -6,8 +6,6 @@ from .expense_service import ExpenseService
 from .database import Base, engine
 from . import db_models
 
-# Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="Expense Tracker API")
 
 expense_service = ExpenseService()

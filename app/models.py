@@ -17,12 +17,14 @@ class ExpenseCreate(BaseModel):
     description: str
     amount: float
     category: ExpenseCategory
+    merchant: Optional[str] = None
 
 
 class ExpenseUpdate(BaseModel):
     description: Optional[str] = None
     amount: Optional[float] = None
     category: Optional[ExpenseCategory] = None
+    merchant: Optional[str] = None
 
 
 class Expense(BaseModel):
@@ -30,5 +32,6 @@ class Expense(BaseModel):
     description: str
     amount: float
     category: ExpenseCategory
+    merchant: Optional[str] = None
     created_at: datetime
     updated_at: datetime

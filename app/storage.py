@@ -14,6 +14,7 @@ class ExpenseStorage:
             description=expense_row.description,
             amount=expense_row.amount,
             category=ExpenseCategory(expense_row.category),
+            merchant=expense_row.merchant,
             created_at=expense_row.created_at,
             updated_at=expense_row.updated_at,
         )
@@ -25,6 +26,7 @@ class ExpenseStorage:
             description=expense_data.description,
             amount = expense_data.amount,
             category = expense_data.category.value,
+            merchant = expense_data.merchant,
             created_at=now,
             updated_at=now,
         )
@@ -68,6 +70,8 @@ class ExpenseStorage:
             expense_row.amount = updates.amount
         if updates.category is not None:
             expense_row.category = updates.category.value
+        if updates.merchant is not None:
+            expense_row.merchant = updates.merchant
 
         expense_row.updated_at = datetime.now(timezone.utc)
         db.commit()
