@@ -1,6 +1,7 @@
-from .models import UserCreate, UserResponse
+from .models import UserCreate, UserResponse, UserLogin
 from .storage import UserStorage
-from .security import hash_password
+from .security import hash_password, verify_password
+
 
 class UserService:
     def __init__(self):
@@ -21,3 +22,21 @@ class UserService:
             email=user_data.email,
             hashed_password=hashed_password,
         )
+    
+    def authenticate_user(
+            self,
+            login_data: UserLogin,
+            ):
+        # Retrieve user -> check whether user exists -> Verify submitted password against stored hash -> Return authenticated user
+        user = self.storage.get_user_by_email(login_data.email)
+
+        if user is None:
+            return None
+        
+        if not verify_password(
+            login_data.password,
+            user.hashed_password,
+        ):
+            return None
+        
+        return user
