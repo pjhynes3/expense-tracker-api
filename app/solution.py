@@ -1,19 +1,30 @@
 from fastapi import FastAPI, HTTPException, Query
 from typing import List, Optional
 
-from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory
+from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory, UserCreate, UserResponse
 from .expense_service import ExpenseService
-from .database import Base, engine
+from .user_service import UserService
 from . import db_models
 
 app = FastAPI(title="Expense Tracker API")
 
 expense_service = ExpenseService()
+user_service = UserService()
 
 
-@app.post("/expenses", response_model=Expense)
+@app.post("/expenses", response_model=Expense, status_code=201)
 async def create_expense(expense_data: ExpenseCreate):
     return expense_service.create_expense(expense_data)
+
+@app.post("/register", response_model=UserResponse, status_code=201)
+async def register_user(user_data: UserCreate):
+    try:
+        return user_service.register_user(user_data)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
 
 @app.get("/expenses/{expense_id}", response_model=Expense)
 async def get_expense(expense_id: str):

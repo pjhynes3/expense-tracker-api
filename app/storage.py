@@ -1,10 +1,10 @@
 from typing import List, Optional
 from datetime import datetime, timezone
 from .database import SessionLocal
-from .db_models import ExpenseRow
+from .db_models import ExpenseRow, UserRow
 import uuid
 
-from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory
+from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory, UserCreate, UserResponse
 
 
 class ExpenseStorage:
@@ -115,3 +115,42 @@ class ExpenseStorage:
         db.close()
         return expenses
         
+
+class UserStorage():
+    def create_user(
+            self,
+            email: str,
+            hashed_password: str,
+    ) -> UserResponse:
+
+        now = datetime.now(timezone.utc)
+        user_row = UserRow(
+            id = str(uuid.uuid4()),
+            email = email,
+            hashed_password = hashed_password,
+            created_at = now
+        )
+
+        db = SessionLocal()
+        db.add(user_row)
+        db.commit()
+        db.refresh(user_row)
+
+        user = UserResponse(
+            id=user_row.id,
+            email=user_row.email,
+            created_at=user_row.created_at,
+        )
+
+        db.close()
+        return user
+    
+    def get_user_by_email(self, email: str) -> Optional[UserRow]:
+        db = SessionLocal()
+
+        user_row = (
+            db.query(UserRow).filter(UserRow.email == email).first()
+        )
+
+        db.close()
+        return user_row
