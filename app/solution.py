@@ -1,7 +1,17 @@
 from fastapi import FastAPI, HTTPException, Query, status
 from typing import List, Optional
 
-from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory, UserCreate, UserResponse, UserLogin
+from .models import (
+    Expense, 
+    ExpenseCreate, 
+    ExpenseUpdate, 
+    ExpenseCategory, 
+    UserCreate, 
+    UserResponse, 
+    UserLogin,
+    TokenResponse,
+)
+from .security import create_access_token
 from .expense_service import ExpenseService
 from .user_service import UserService
 from . import db_models
@@ -28,7 +38,7 @@ async def register_user(user_data: UserCreate):
 
 @app.post(
         "/login",
-        response_model=UserResponse,
+        response_model=TokenResponse,
         status_code=status.HTTP_200_OK,
 )
 async def login(
@@ -41,7 +51,12 @@ async def login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
         )
-    return user
+    
+    access_token = create_access_token(user.id)
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer",
+    )
 
 @app.get("/expenses/{expense_id}", response_model=Expense)
 async def get_expense(expense_id: str):
