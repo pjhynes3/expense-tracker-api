@@ -19,10 +19,15 @@ class ExpenseStorage:
             updated_at=expense_row.updated_at,
         )
     
-    def create_expense(self, expense_data: ExpenseCreate) -> Expense:
+    def create_expense(
+            self, 
+            expense_data: ExpenseCreate,
+            user_id: str,
+        ) -> Expense:
         now = datetime.now(timezone.utc)
         expense_row = ExpenseRow(
             id = str(uuid.uuid4()),
+            user_id=user_id,
             description=expense_data.description,
             amount = expense_data.amount,
             category = expense_data.category.value,

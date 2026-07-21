@@ -1,10 +1,18 @@
-from sqlalchemy import Column, String, Float, DateTime, Text
+from sqlalchemy import (
+    Column, 
+    String, 
+    Float, 
+    DateTime, 
+    Text,
+    ForeignKey
+)
 from .database import Base
 
 
 class ExpenseRow(Base):
     __tablename__ = "expenses"
     id = Column(String, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"),nullable=False,index=True)
     description = Column(Text, nullable=False)
     amount = Column(Float, nullable=False)
     category = Column(String, nullable=False)

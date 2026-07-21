@@ -9,7 +9,11 @@ class ExpenseService:
     def __init__(self):
         self.storage = ExpenseStorage()
 
-    def create_expense(self, expense_data: ExpenseCreate) -> Expense:
+    def create_expense(
+            self, 
+            expense_data: ExpenseCreate,
+            user_id: str,
+        ) -> Expense:
         """
         Create expense with business validation.
         Business rule:
@@ -17,7 +21,10 @@ class ExpenseService:
         """
         if expense_data.amount <= 0:
             raise ValueError("Amount must be greater than 0.00")
-        return self.storage.create_expense(expense_data)
+        return self.storage.create_expense(
+            expense_data, 
+            user_id,
+        )
 
     def get_expense(self, expense_id: str) -> Optional[Expense]:
         """

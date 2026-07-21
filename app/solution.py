@@ -68,7 +68,10 @@ async def read_current_user(
 async def create_expense(
     expense_data: ExpenseCreate,
     current_user=Depends(get_current_user)):
-    return expense_service.create_expense(expense_data)
+    return expense_service.create_expense(
+        expense_data, 
+        current_user.id,
+        )
 
 @app.post("/register", response_model=UserResponse, status_code=201)
 async def register_user(user_data: UserCreate):
