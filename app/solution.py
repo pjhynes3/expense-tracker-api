@@ -49,7 +49,7 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User no longer exists",
-            headers={"WWW-AUTHENTICATE": "Bearer"},
+            headers={"WWW-Authenticate": "Bearer"},
         )
     
     return user
@@ -65,7 +65,9 @@ async def read_current_user(
     )
 
 @app.post("/expenses", response_model=Expense, status_code=201)
-async def create_expense(expense_data: ExpenseCreate):
+async def create_expense(
+    expense_data: ExpenseCreate,
+    current_user=Depends(get_current_user)):
     return expense_service.create_expense(expense_data)
 
 @app.post("/register", response_model=UserResponse, status_code=201)
@@ -101,7 +103,9 @@ async def login(
     )
 
 @app.get("/expenses/{expense_id}", response_model=Expense)
-async def get_expense(expense_id: str):
+async def get_expense(
+    expense_id: str,
+    current_user=Depends(get_current_user)):
     expense = expense_service.get_expense(expense_id)
     if expense is None:
         raise HTTPException(status_code=404, detail="Expense not found")
@@ -112,6 +116,7 @@ async def get_expense(expense_id: str):
 async def update_expense(
     expense_id: str,
     updates: ExpenseUpdate,
+    current_user=Depends(get_current_user)
 ):
     try:
         updated_expense = expense_service.update_expense(expense_id, updates)
@@ -124,7 +129,9 @@ async def update_expense(
 
 
 @app.delete("/expenses/{expense_id}")
-async def delete_expense(expense_id: str):
+async def delete_expense(
+    expense_id: str,
+    current_user=Depends(get_current_user)):
     deleted = expense_service.delete_expense(expense_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Expense not found")
@@ -133,6 +140,7 @@ async def delete_expense(expense_id: str):
 
 @app.get("/expenses", response_model=List[Expense])
 async def list_expenses(
-    category: Optional[str] = Query(None),
+    current_user=Depends(get_current_user),
+    category: Optional[str] = Query(None)
 ):
     return expense_service.list_expenses(category)
