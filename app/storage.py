@@ -154,3 +154,15 @@ class UserStorage():
 
         db.close()
         return user_row
+    
+    def get_user_by_id(self, user_id: str) -> Optional[UserRow]:
+        db = SessionLocal()
+
+        user_row = (
+            db.query(UserRow)
+            .filter(UserRow.id == user_id)
+            .first()
+        )
+
+        db.close()
+        return user_row

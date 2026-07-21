@@ -1,4 +1,11 @@
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import (
+    FastAPI, 
+    HTTPException, 
+    Query, 
+    status,
+    Depends,
+    )
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List, Optional
 
 from .models import (
@@ -11,7 +18,8 @@ from .models import (
     UserLogin,
     TokenResponse,
 )
-from .security import create_access_token
+
+from .security import create_access_token, decode_access_token
 from .expense_service import ExpenseService
 from .user_service import UserService
 from . import db_models
@@ -20,7 +28,41 @@ app = FastAPI(title="Expense Tracker API")
 
 expense_service = ExpenseService()
 user_service = UserService()
+bearer_scheme = HTTPBearer()
 
+def get_current_user(
+        credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
+):
+    token = credentials.credentials
+    user_id = decode_access_token(token)
+
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    user = user_service.get_user_by_id(user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User no longer exists",
+            headers={"WWW-AUTHENTICATE": "Bearer"},
+        )
+    
+    return user
+
+@app.get("/me", response_model=UserResponse)
+async def read_current_user(
+    current_user=Depends(get_current_user)
+):
+    return UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        created_at=current_user.created_at
+    )
 
 @app.post("/expenses", response_model=Expense, status_code=201)
 async def create_expense(expense_data: ExpenseCreate):

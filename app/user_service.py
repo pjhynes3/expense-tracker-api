@@ -40,3 +40,6 @@ class UserService:
             return None
         
         return user
+    
+    def get_user_by_id(self, user_id: str):
+        return self.storage.get_user_by_id(user_id)

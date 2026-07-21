@@ -1,5 +1,15 @@
+# Virtual environment
 .venv/
-__pycac*
-*.pyc
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Vim
 *.swp
+
+#SQLite
 *.db
+
+# Scratch files
+scratch.py

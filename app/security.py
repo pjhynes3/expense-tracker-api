@@ -1,3 +1,4 @@
+from typing import Optional
 from pwdlib import PasswordHash
 import os
 from datetime import datetime, timedelta, timezone
@@ -35,3 +36,19 @@ def create_access_token(subject: str) -> str:
         SECRET_KEY,
         algorithm=ALGORITHM
     )
+
+def decode_access_token(token: str) -> Optional[str]:
+    try:
+        payload  = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+        )
+        
+        subject = payload.get("sub")
+
+        if subject is None:
+            return None
+        return subject
+    except jwt.InvalidTokenError:
+        return None
