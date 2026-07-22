@@ -1,11 +1,11 @@
 from typing import Optional
 from pwdlib import PasswordHash
-import os
+from.config import JWT_SECRET_KEY
 from datetime import datetime, timedelta, timezone
 import jwt
 
 password_hash = PasswordHash.recommended()
-SECRET_KEY = os.environ["JWT_SECRET_KEY"]
+SECRET_KEY = JWT_SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
