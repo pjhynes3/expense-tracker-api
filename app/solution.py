@@ -125,7 +125,11 @@ async def update_expense(
     current_user=Depends(get_current_user)
 ):
     try:
-        updated_expense = expense_service.update_expense(expense_id, updates)
+        updated_expense = expense_service.update_expense(
+            expense_id, 
+            updates,
+            current_user.id,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
@@ -138,10 +142,13 @@ async def update_expense(
 async def delete_expense(
     expense_id: str,
     current_user=Depends(get_current_user)):
-    deleted = expense_service.delete_expense(expense_id)
+    deleted = expense_service.delete_expense(
+        expense_id,
+        current_user.id,
+    )
     if not deleted:
         raise HTTPException(status_code=404, detail="Expense not found")
-    return {"message": "Document deleted successfully"}
+    return {"message": "Expense deleted successfully"}
 
 
 @app.get("/expenses", response_model=List[Expense])

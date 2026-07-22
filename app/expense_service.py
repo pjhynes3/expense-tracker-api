@@ -47,30 +47,42 @@ class ExpenseService:
         self,
         expense_id: str,
         updates: ExpenseUpdate,
+        user_id: str,
     ) -> Optional[Expense]:
         """
-        Update expense with validation.
+        Update an expense with owned by the authenticated user.
         Business rule:
-            if amount is provided, it must be greater than 0
-        Consider cache invalidation.
+            if amount is provided, it must be greater than 0.
         """
         if updates.amount is not None and updates.amount <= 0:
             raise ValueError("Amount must be greater than 0")
         
-        updated_expense = self.storage.update_expense(expense_id, updates)
+        updated_expense = self.storage.update_expense(
+            expense_id, 
+            updates,
+            user_id,
+        )
         
         if updated_expense is not None:
-            cache_delete(f"expense:{expense_id}")
+            cache_key = f"expense:{user_id}:{expense_id}"
+            cache_delete(cache_key)
         return updated_expense
 
-    def delete_expense(self, expense_id: str) -> bool:
+    def delete_expense(
+            self, 
+            expense_id: str,
+            user_id: str,
+        ) -> bool:
         """
-        Delete expense with cache cleanup.
+        Delete an expense owned by authenticated user and remove its cached copy.
         """
-
-        deleted = self.storage.delete_expense(expense_id)
+        deleted = self.storage.delete_expense(
+            expense_id,
+            user_id,
+        )
         if deleted:
-            cache_delete(f"expense:{expense_id}")
+            cache_key = f"expense:{user_id}:{expense_id}"
+            cache_delete(cache_key)
         return deleted
 
     def list_expenses(

@@ -69,10 +69,16 @@ class ExpenseStorage:
         self,
         expense_id: str,
         updates: ExpenseUpdate,
+        user_id: str,
     ) -> Optional[Expense]:
         db = SessionLocal()
         expense_row = (
-            db.query(ExpenseRow).filter(ExpenseRow.id==expense_id).first()
+            db.query(ExpenseRow)
+            .filter(
+                ExpenseRow.id==expense_id,
+                ExpenseRow.user_id == user_id,
+            )
+            .first()
         )
         if expense_row is None:
             db.close()
@@ -94,10 +100,20 @@ class ExpenseStorage:
         return expense
 
 
-    def delete_expense(self, expense_id: str) -> bool:
+    def delete_expense(
+            self, 
+            expense_id: str,
+            user_id: str,
+        ) -> bool:
         db = SessionLocal()
+
         expense_row = (
-            db.query(ExpenseRow).filter(ExpenseRow.id==expense_id).first()
+            db.query(ExpenseRow)
+            .filter(
+                ExpenseRow.id == expense_id,
+                ExpenseRow.user_id == user_id,
+            )
+            .first()
         )
         if expense_row is None:
             db.close()
