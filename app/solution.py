@@ -109,7 +109,10 @@ async def login(
 async def get_expense(
     expense_id: str,
     current_user=Depends(get_current_user)):
-    expense = expense_service.get_expense(expense_id)
+    expense = expense_service.get_expense(
+        expense_id, 
+        current_user.id,
+    )
     if expense is None:
         raise HTTPException(status_code=404, detail="Expense not found")
     return expense
@@ -146,4 +149,7 @@ async def list_expenses(
     current_user=Depends(get_current_user),
     category: Optional[str] = Query(None)
 ):
-    return expense_service.list_expenses(category)
+    return expense_service.list_expenses(
+        current_user.id,
+        category,
+    )

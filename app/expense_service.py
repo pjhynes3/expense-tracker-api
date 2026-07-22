@@ -26,16 +26,21 @@ class ExpenseService:
             user_id,
         )
 
-    def get_expense(self, expense_id: str) -> Optional[Expense]:
+    def get_expense(
+            self, 
+            expense_id: str,
+            user_id: str,
+        ) -> Optional[Expense]:
         """
-        Get expense with cache-aside pattern.
+        Get an expense owned by the authenticated user
+        using cache-aside pattern.
         """
-        # cache-aside: get it from cache if possible, if not grab from db but populate cache
-        expense = cache_get(f"expense:{expense_id}")
+        cache_key = f"expense:{user_id}:{expense_id}"
+        expense = cache_get(cache_key)
         if expense is None:
-            expense = self.storage.get_expense(expense_id)
+            expense = self.storage.get_expense(expense_id, user_id)
             if expense is not None:
-                cache_set(f"expense:{expense_id}", expense)
+                cache_set(cache_key, expense)
         return expense
 
     def update_expense(
@@ -70,10 +75,14 @@ class ExpenseService:
 
     def list_expenses(
         self,
+        user_id: str,
         category: Optional[str] = None,
     ) -> List[Expense]:
         """
         List expenses with optional category filtering.
         Do not cache list operations.
         """
-        return self.storage.list_expenses(category)
+        return self.storage.list_expenses(
+            user_id,
+            category,
+        )

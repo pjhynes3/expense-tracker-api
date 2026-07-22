@@ -45,10 +45,18 @@ class ExpenseStorage:
         expense = self._row_to_expense(expense_row)
         return expense
 
-    def get_expense(self, expense_id: str) -> Optional[Expense]:
+    def get_expense(
+            self, 
+            expense_id: str,
+            user_id: str,) -> Optional[Expense]:
         db = SessionLocal()
         expense_row = (
-            db.query(ExpenseRow).filter(ExpenseRow.id == expense_id).first()
+            db.query(ExpenseRow)
+            .filter(
+                ExpenseRow.id == expense_id,
+                ExpenseRow.user_id == user_id,
+            )
+            .first()
         )
         if expense_row is None:
             db.close()
@@ -101,11 +109,15 @@ class ExpenseStorage:
 
     def list_expenses(
         self,
+        user_id: str,
         category: Optional[str] = None,
     ) -> List[Expense]:
         db = SessionLocal()
         
-        query = db.query(ExpenseRow)
+        query = (
+            db.query(ExpenseRow)
+            .filter(ExpenseRow.user_id == user_id)
+        )
 
         if category is not None:
             query = query.filter(ExpenseRow.category == category)
