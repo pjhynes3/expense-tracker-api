@@ -67,10 +67,17 @@ async def read_current_user(
 @app.post("/expenses", response_model=Expense, status_code=201)
 async def create_expense(
     expense_data: ExpenseCreate,
-    current_user=Depends(get_current_user)):
-    return expense_service.create_expense(
-        expense_data, 
-        current_user.id,
+    current_user=Depends(get_current_user)
+):
+    try:
+        return expense_service.create_expense(
+            expense_data, 
+            current_user.id,
+            )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(error)
         )
 
 @app.post("/register", response_model=UserResponse, status_code=201)
