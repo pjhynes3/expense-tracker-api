@@ -1,4 +1,7 @@
+from datetime import datetime, timedelta, timezone
+import jwt
 import pytest
+from app.security import ALGORITHM, SECRET_KEY
 
 def test_user_can_register_login_and_access_me(client):
      # Arrange/Act: register a new user.
@@ -165,5 +168,41 @@ def test_tampered_token_is_rejected(client):
     )
 
     # Assert: signature verification rejects it.
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Invalid or expired token"
+
+def test_expired_token_is_rejected(client):
+    # Arrange: register a real user
+    registration_response = client.post(
+        "/register",
+        json={
+            "email": "expired-token-user@example.com",
+            "password": "password123",
+        },
+    )
+
+    assert registration_response.status_code == 201
+
+    user_id = registration_response.json()["id"]
+
+    # Create a correctly signed JWT whose expiration is in the past.
+    expired_token = jwt.encode(
+        {
+            "sub": user_id,
+            "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
+        },
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+
+    # Act: use the expired token.
+    response = client.get(
+        "/me",
+        headers={
+            "Authorization": f"Bearer {expired_token}",
+        },
+    )
+
+    # Assert: expiration validation rejects it.
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid or expired token"
