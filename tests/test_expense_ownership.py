@@ -288,3 +288,74 @@ def test_user_cannot_delete_another_users_expense(client):
 
     assert deleted_get_response.status_code == 404
     assert deleted_get_response.json()["detail"] == "Expense not found"
+
+def test_category_filter_only_returns_current_users_matching_expenses(client):
+    # Arrange: create and authenticate two users.
+    register_user(client, "user-a@example.com")
+    register_user(client, "user-b@example.com")
+
+    user_a_token = login_user(client, "user-a@example.com")
+    user_b_token = login_user(client, "user-b@example.com")
+
+    # User A creates one food expense and one transportation expense.
+    user_a_food_response = client.post(
+        "/expenses",
+        headers=authorization_header(user_a_token),
+        json={
+            "description": "User A lunch",
+            "amount": 15.00,
+            "category": "food",
+            "merchant": "Restaurant A",
+        },
+    )
+
+    user_a_transportation_response = client.post(
+        "/expenses",
+        headers=authorization_header(user_a_token),
+        json={
+            "description": "User A train ticket",
+            "amount": 8.00,
+            "category": "transportation",
+            "merchant": "Transit",
+        },
+    )
+
+    # User B also creates a food expense.
+    user_b_food_response = client.post(
+        "/expenses",
+        headers=authorization_header(user_b_token),
+        json={
+            "description": "User B dinner",
+            "amount": 25.00,
+            "category": "food",
+            "merchant": "Restaurant B",
+        },
+    )
+
+    assert user_a_food_response.status_code == 201
+    assert user_a_transportation_response.status_code == 201
+    assert user_b_food_response.status_code == 201
+
+    user_a_food_id = user_a_food_response.json()["id"]
+
+    # Act: User A requests only their food expenses.
+    response = client.get(
+        "/expenses",
+        headers=authorization_header(user_a_token),
+        params={"category": "food"},
+    )
+
+    # Assert: only User A's matching food expense is returned.
+    assert response.status_code == 200
+
+    returned_expenses = response.json()
+    returned_ids = {
+        expense["id"]
+        for expense in returned_expenses
+    }
+
+    assert returned_ids == {user_a_food_id}
+    assert all(
+        expense["category"] == "food"
+        for expense in returned_expenses
+    )
