@@ -1,7 +1,7 @@
 from sqlalchemy import (
     Column, 
     String, 
-    Float, 
+    Numeric, 
     DateTime, 
     Text,
     ForeignKey
@@ -14,7 +14,7 @@ class ExpenseRow(Base):
     id = Column(String, primary_key=True, index=True)
     user_id = Column(String, ForeignKey("users.id"),nullable=False,index=True)
     description = Column(Text, nullable=False)
-    amount = Column(Float, nullable=False)
+    amount = Column(Numeric(precision=12, scale=2), nullable=False)
     category = Column(String, nullable=False)
     merchant = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True),nullable=False)

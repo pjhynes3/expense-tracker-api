@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
+from decimal import Decimal
 from enum import Enum
 from typing import Optional
+from typing_extensions import Annotated
 from datetime import datetime
 
 
@@ -12,17 +14,21 @@ class ExpenseCategory(str, Enum):
     UTILITIES = "utilities"
     OTHER = "other"
 
+Money = Annotated[
+    Decimal,
+    Field(max_digits=12, decimal_places=2),
+]
 
 class ExpenseCreate(BaseModel):
     description: str
-    amount: float
+    amount: Money
     category: ExpenseCategory
     merchant: Optional[str] = None
 
 
 class ExpenseUpdate(BaseModel):
     description: Optional[str] = None
-    amount: Optional[float] = None
+    amount: Optional[Money] = None
     category: Optional[ExpenseCategory] = None
     merchant: Optional[str] = None
 
@@ -30,7 +36,7 @@ class ExpenseUpdate(BaseModel):
 class Expense(BaseModel):
     id: str
     description: str
-    amount: float
+    amount: Money
     category: ExpenseCategory
     merchant: Optional[str] = None
     created_at: datetime

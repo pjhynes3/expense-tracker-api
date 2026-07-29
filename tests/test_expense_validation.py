@@ -1,4 +1,8 @@
 import pytest
+from decimal import Decimal
+
+from app.database import SessionLocal
+from app.db_models import ExpenseRow
 
 def create_authenticated_headers(client) -> dict:
     registration_response = client.post(
@@ -122,8 +126,41 @@ def test_valid_expense_returns_created(client):
 
     assert "id" in expense
     assert expense["description"] == "Valid lunch"
-    assert expense["amount"] == 16.75
+    assert expense["amount"] == "16.75"
     assert expense["category"] == "food"
     assert expense["merchant"] == "Test Restaurant"
     assert "created_at" in expense
     assert "updated_at" in expense
+
+def test_expense_amount_is_stored_as_exact_decimal(client):
+    headers = create_authenticated_headers(client)
+
+    response = client.post(
+        "/expenses",
+        headers=headers,
+        json={
+            "description": "Exact decimal expense",
+            "amount": 0.10,
+            "category": "food",
+            "merchant": "Decimal Store",
+        },
+    )
+
+    assert response.status_code == 201
+
+    expense = response.json()
+    expense_id = expense["id"]
+
+    # The API preserves exact money by serializing Decimal as a string.
+    assert expense["amount"] == "0.10"
+
+    # PostgreSQL NUMERIC is returned through SQLAlchemy as Python Decimal.
+    with SessionLocal() as db:
+        stored_amount = (
+            db.query(ExpenseRow.amount)
+            .filter(ExpenseRow.id == expense_id)
+            .scalar()
+        )
+
+    assert isinstance(stored_amount, Decimal)
+    assert stored_amount == Decimal("0.10")
