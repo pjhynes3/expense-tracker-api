@@ -1,8 +1,10 @@
-import pytest
 from decimal import Decimal
+
+import pytest
 
 from app.database import SessionLocal
 from app.db_models import ExpenseRow
+
 
 def create_authenticated_headers(client) -> dict:
     registration_response = client.post(

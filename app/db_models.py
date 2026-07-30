@@ -1,11 +1,5 @@
-from sqlalchemy import (
-    Column, 
-    String, 
-    Numeric, 
-    DateTime, 
-    Text,
-    ForeignKey
-)
+from sqlalchemy import Column, DateTime, ForeignKey, Numeric, String, Text
+
 from .database import Base
 
 

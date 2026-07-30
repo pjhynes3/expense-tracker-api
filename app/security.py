@@ -1,8 +1,10 @@
-from typing import Optional
-from pwdlib import PasswordHash
-from.config import JWT_SECRET_KEY
 from datetime import datetime, timedelta, timezone
+from typing import Optional
+
 import jwt
+from pwdlib import PasswordHash
+
+from .config import JWT_SECRET_KEY
 
 password_hash = PasswordHash.recommended()
 SECRET_KEY = JWT_SECRET_KEY

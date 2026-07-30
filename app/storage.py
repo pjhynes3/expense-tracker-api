@@ -1,10 +1,16 @@
-from typing import List, Optional
+import uuid
 from datetime import datetime, timezone
+from typing import List, Optional
+
 from .database import SessionLocal
 from .db_models import ExpenseRow, UserRow
-import uuid
-
-from .models import Expense, ExpenseCreate, ExpenseUpdate, ExpenseCategory, UserCreate, UserResponse
+from .models import (
+    Expense,
+    ExpenseCategory,
+    ExpenseCreate,
+    ExpenseUpdate,
+    UserResponse,
+)
 
 
 class ExpenseStorage:
@@ -148,7 +154,7 @@ class ExpenseStorage:
                 for row in expense_rows
             ]
 
-class UserStorage():
+class UserStorage:
     def create_user(
             self,
             email: str,

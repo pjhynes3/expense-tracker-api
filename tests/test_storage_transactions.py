@@ -1,8 +1,10 @@
 from unittest.mock import MagicMock
+
 import pytest
 
 from app.models import ExpenseCategory, ExpenseCreate
 from app.storage import ExpenseStorage
+
 
 def test_create_expense_rolls_back_when_commit_fails(monkeypatch):
     # Arrange: create a fake SessionLocal factory and session.

@@ -1,28 +1,26 @@
-from fastapi import (
-    FastAPI, 
-    HTTPException, 
-    Query, 
-    status,
-    Depends,
-    )
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import List, Optional
 
-from .models import (
-    Expense, 
-    ExpenseCreate, 
-    ExpenseUpdate, 
-    ExpenseCategory, 
-    UserCreate, 
-    UserResponse, 
-    UserLogin,
-    TokenResponse,
+from fastapi import (
+    Depends,
+    FastAPI,
+    HTTPException,
+    Query,
+    status,
 )
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from .security import create_access_token, decode_access_token
 from .expense_service import ExpenseService
+from .models import (
+    Expense,
+    ExpenseCreate,
+    ExpenseUpdate,
+    TokenResponse,
+    UserCreate,
+    UserLogin,
+    UserResponse,
+)
+from .security import create_access_token, decode_access_token
 from .user_service import UserService
-from . import db_models
 
 app = FastAPI(title="Expense Tracker API")
 

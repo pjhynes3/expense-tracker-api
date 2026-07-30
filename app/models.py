@@ -1,9 +1,10 @@
-from pydantic import BaseModel, EmailStr, Field
+from datetime import datetime
 from decimal import Decimal
 from enum import Enum
 from typing import Optional
+
+from pydantic import BaseModel, EmailStr, Field
 from typing_extensions import Annotated
-from datetime import datetime
 
 
 class ExpenseCategory(str, Enum):

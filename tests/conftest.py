@@ -1,6 +1,6 @@
 import os
-import pytest
 
+import pytest
 from dotenv import load_dotenv
 from fastapi.testclient import TestClient
 from sqlalchemy.engine import make_url
@@ -27,6 +27,7 @@ from app.cache import cache_clear
 from app.database import SessionLocal
 from app.db_models import ExpenseRow, UserRow
 from app.solution import app
+
 
 def clear_test_data() -> None:
     """

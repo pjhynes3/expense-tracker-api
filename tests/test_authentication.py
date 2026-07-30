@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta, timezone
+
 import jwt
 import pytest
+
 from app.security import ALGORITHM, SECRET_KEY
+
 
 def test_user_can_register_login_and_access_me(client):
      # Arrange/Act: register a new user.

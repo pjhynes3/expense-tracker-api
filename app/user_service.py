@@ -1,6 +1,6 @@
-from .models import UserCreate, UserResponse, UserLogin
-from .storage import UserStorage
+from .models import UserCreate, UserLogin, UserResponse
 from .security import hash_password, verify_password
+from .storage import UserStorage
 
 
 class UserService:
