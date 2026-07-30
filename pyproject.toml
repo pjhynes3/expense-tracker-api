@@ -6,3 +6,8 @@ extend-exclude = ["alembic/versions"]
 
 [tool.ruff.lint.per-file-ignores]
 "app/solution.py" = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["app"]
+warn_unused_configs = true

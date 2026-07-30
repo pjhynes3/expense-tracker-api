@@ -1,6 +1,6 @@
 from typing import Any
 
-_cache_store = {}
+_cache_store: dict[str, Any] = {}
 
 
 def cache_get(key: str) -> Any | None:
