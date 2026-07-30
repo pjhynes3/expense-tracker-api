@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from .cache import cache_delete, cache_get, cache_set
 from .models import Expense, ExpenseCreate, ExpenseUpdate
 from .storage import ExpenseStorage
@@ -30,7 +28,7 @@ class ExpenseService:
         self,
         expense_id: str,
         user_id: str,
-    ) -> Optional[Expense]:
+    ) -> Expense | None:
         """
         Get an expense owned by the authenticated user
         using cache-aside pattern.
@@ -48,7 +46,7 @@ class ExpenseService:
         expense_id: str,
         updates: ExpenseUpdate,
         user_id: str,
-    ) -> Optional[Expense]:
+    ) -> Expense | None:
         """
         Update an expense with owned by the authenticated user.
         Business rule:
@@ -88,8 +86,8 @@ class ExpenseService:
     def list_expenses(
         self,
         user_id: str,
-        category: Optional[str] = None,
-    ) -> List[Expense]:
+        category: str | None = None,
+    ) -> list[Expense]:
         """
         List expenses with optional category filtering.
         Do not cache list operations.

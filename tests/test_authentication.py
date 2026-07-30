@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import jwt
 import pytest
@@ -194,7 +194,7 @@ def test_expired_token_is_rejected(client):
     expired_token = jwt.encode(
         {
             "sub": user_id,
-            "exp": datetime.now(timezone.utc) - timedelta(minutes=1),
+            "exp": datetime.now(UTC) - timedelta(minutes=1),
         },
         SECRET_KEY,
         algorithm=ALGORITHM,

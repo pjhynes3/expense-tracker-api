@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from fastapi import (
     Depends,
     FastAPI,
@@ -148,9 +146,9 @@ async def delete_expense(expense_id: str, current_user=Depends(get_current_user)
     return {"message": "Expense deleted successfully"}
 
 
-@app.get("/expenses", response_model=List[Expense])
+@app.get("/expenses", response_model=list[Expense])
 async def list_expenses(
-    current_user=Depends(get_current_user), category: Optional[str] = Query(None)
+    current_user=Depends(get_current_user), category: str | None = Query(None)
 ):
     return expense_service.list_expenses(
         current_user.id,

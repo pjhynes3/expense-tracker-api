@@ -1,9 +1,9 @@
-from typing import Any, Optional
+from typing import Any
 
 _cache_store = {}
 
 
-def cache_get(key: str) -> Optional[Any]:
+def cache_get(key: str) -> Any | None:
     return _cache_store.get(key)
 
 

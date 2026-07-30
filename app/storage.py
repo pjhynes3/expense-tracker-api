@@ -1,6 +1,5 @@
 import uuid
-from datetime import datetime, timezone
-from typing import List, Optional
+from datetime import UTC, datetime
 
 from .database import SessionLocal
 from .db_models import ExpenseRow, UserRow
@@ -30,7 +29,7 @@ class ExpenseStorage:
         expense_data: ExpenseCreate,
         user_id: str,
     ) -> Expense:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expense_row = ExpenseRow(
             id=str(uuid.uuid4()),
             user_id=user_id,
@@ -58,7 +57,7 @@ class ExpenseStorage:
         self,
         expense_id: str,
         user_id: str,
-    ) -> Optional[Expense]:
+    ) -> Expense | None:
         with SessionLocal() as db:
             expense_row = (
                 db.query(ExpenseRow)
@@ -78,7 +77,7 @@ class ExpenseStorage:
         expense_id: str,
         updates: ExpenseUpdate,
         user_id: str,
-    ) -> Optional[Expense]:
+    ) -> Expense | None:
         with SessionLocal() as db:
             expense_row = (
                 db.query(ExpenseRow)
@@ -101,7 +100,7 @@ class ExpenseStorage:
                 if updates.merchant is not None:
                     expense_row.merchant = updates.merchant
 
-                expense_row.updated_at = datetime.now(timezone.utc)
+                expense_row.updated_at = datetime.now(UTC)
 
                 db.commit()
             except Exception:
@@ -137,8 +136,8 @@ class ExpenseStorage:
     def list_expenses(
         self,
         user_id: str,
-        category: Optional[str] = None,
-    ) -> List[Expense]:
+        category: str | None = None,
+    ) -> list[Expense]:
         with SessionLocal() as db:
             query = db.query(ExpenseRow).filter(ExpenseRow.user_id == user_id)
 
@@ -157,7 +156,7 @@ class UserStorage:
         hashed_password: str,
     ) -> UserResponse:
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         user_row = UserRow(
             id=str(uuid.uuid4()),
             email=email,
@@ -180,10 +179,10 @@ class UserStorage:
                 created_at=user_row.created_at,
             )
 
-    def get_user_by_email(self, email: str) -> Optional[UserRow]:
+    def get_user_by_email(self, email: str) -> UserRow | None:
         with SessionLocal() as db:
             return db.query(UserRow).filter(UserRow.email == email).first()
 
-    def get_user_by_id(self, user_id: str) -> Optional[UserRow]:
+    def get_user_by_id(self, user_id: str) -> UserRow | None:
         with SessionLocal() as db:
             return db.query(UserRow).filter(UserRow.id == user_id).first()
