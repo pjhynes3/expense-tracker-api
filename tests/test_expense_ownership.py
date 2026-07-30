@@ -1,22 +1,19 @@
-def register_user(
-        client,
-        email: str,
-        password: str = "password123"
-) -> None:
+def register_user(client, email: str, password: str = "password123") -> None:
     response = client.post(
         "/register",
         json={
-            "email":email,
-            "password":password,
+            "email": email,
+            "password": password,
         },
     )
 
     assert response.status_code == 201
 
+
 def login_user(
-        client,
-        email: str,
-        password: str = "password123",
+    client,
+    email: str,
+    password: str = "password123",
 ) -> str:
     response = client.post(
         "/login",
@@ -29,10 +26,12 @@ def login_user(
     assert response.status_code == 200
     return response.json()["access_token"]
 
+
 def authorization_header(token: str) -> dict:
     return {
         "Authorization": f"Bearer {token}",
     }
+
 
 def test_user_cannot_access_another_users_expense(client):
     # Arrange: create and authenticate two separate users.
@@ -75,6 +74,7 @@ def test_user_cannot_access_another_users_expense(client):
 
     assert other_user_response.status_code == 404
     assert other_user_response.json()["detail"] == "Expense not found"
+
 
 def test_users_only_list_their_own_expenses(client):
     # Arrange: create and authenticate two users.
@@ -128,18 +128,13 @@ def test_users_only_list_their_own_expenses(client):
     assert user_b_list_response.status_code == 200
 
     # Assert: each response contains exactly that user's expense.
-    user_a_returned_ids = {
-        expense["id"]
-        for expense in user_a_list_response.json()
-    }
+    user_a_returned_ids = {expense["id"] for expense in user_a_list_response.json()}
 
-    user_b_returned_ids = {
-        expense["id"]
-        for expense in user_b_list_response.json()
-    }
+    user_b_returned_ids = {expense["id"] for expense in user_b_list_response.json()}
 
     assert user_a_returned_ids == {user_a_expense_id}
     assert user_b_returned_ids == {user_b_expense_id}
+
 
 def test_user_cannot_update_another_users_expense(client):
     # Arrange: create and authenticate two users.
@@ -276,9 +271,7 @@ def test_user_cannot_delete_another_users_expense(client):
     )
 
     assert owner_delete_response.status_code == 200
-    assert owner_delete_response.json() == {
-        "message": "Expense deleted successfully"
-    }
+    assert owner_delete_response.json() == {"message": "Expense deleted successfully"}
 
     # Confirm it is gone and its cached copy was removed.
     deleted_get_response = client.get(
@@ -288,6 +281,7 @@ def test_user_cannot_delete_another_users_expense(client):
 
     assert deleted_get_response.status_code == 404
     assert deleted_get_response.json()["detail"] == "Expense not found"
+
 
 def test_category_filter_only_returns_current_users_matching_expenses(client):
     # Arrange: create and authenticate two users.
@@ -349,13 +343,7 @@ def test_category_filter_only_returns_current_users_matching_expenses(client):
     assert response.status_code == 200
 
     returned_expenses = response.json()
-    returned_ids = {
-        expense["id"]
-        for expense in returned_expenses
-    }
+    returned_ids = {expense["id"] for expense in returned_expenses}
 
     assert returned_ids == {user_a_food_id}
-    assert all(
-        expense["category"] == "food"
-        for expense in returned_expenses
-    )
+    assert all(expense["category"] == "food" for expense in returned_expenses)

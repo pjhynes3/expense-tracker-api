@@ -11,17 +11,20 @@ SECRET_KEY = JWT_SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+
 def hash_password(password: str) -> str:
     return password_hash.hash(password)
 
+
 def verify_password(
-        plain_password: str,
-        hashed_password: str,
+    plain_password: str,
+    hashed_password: str,
 ) -> bool:
     return password_hash.verify(
         plain_password,
         hashed_password,
     )
+
 
 def create_access_token(subject: str) -> str:
     expiration = datetime.now(timezone.utc) + timedelta(
@@ -29,24 +32,21 @@ def create_access_token(subject: str) -> str:
     )
 
     payload = {
-        "sub":subject,
-        "exp":expiration,
+        "sub": subject,
+        "exp": expiration,
     }
 
-    return jwt.encode(
-        payload,
-        SECRET_KEY,
-        algorithm=ALGORITHM
-    )
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
 
 def decode_access_token(token: str) -> Optional[str]:
     try:
-        payload  = jwt.decode(
+        payload = jwt.decode(
             token,
             SECRET_KEY,
             algorithms=[ALGORITHM],
         )
-        
+
         subject = payload.get("sub")
 
         if subject is None:

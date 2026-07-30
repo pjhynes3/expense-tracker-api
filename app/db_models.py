@@ -6,22 +6,18 @@ from .database import Base
 class ExpenseRow(Base):
     __tablename__ = "expenses"
     id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"),nullable=False,index=True)
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
     description = Column(Text, nullable=False)
     amount = Column(Numeric(precision=12, scale=2), nullable=False)
     category = Column(String, nullable=False)
     merchant = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True),nullable=False)
+    created_at = Column(DateTime(timezone=True), nullable=False)
     updated_at = Column(DateTime(timezone=True), nullable=False)
+
 
 class UserRow(Base):
     __tablename__ = "users"
     id = Column(String, primary_key=True, index=True)
-    email = Column(
-        String, 
-        unique=True,
-        nullable=False,
-        index=True
-        )
+    email = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False)

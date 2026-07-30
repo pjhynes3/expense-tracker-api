@@ -14,9 +14,7 @@ TEST_DATABASE_URL = os.environ["TEST_DATABASE_URL"]
 database_name = make_url(TEST_DATABASE_URL).database
 
 if database_name is None or not database_name.endswith("_test"):
-    raise RuntimeError(
-        "TEST_DATABASE_URL must point to a database ending in '_test'"
-    )
+    raise RuntimeError("TEST_DATABASE_URL must point to a database ending in '_test'")
 
 
 # The application reads DATABASE_URL when its modules are imported.
@@ -45,6 +43,7 @@ def clear_test_data() -> None:
         db.close()
 
     cache_clear()
+
 
 @pytest.fixture
 def client():

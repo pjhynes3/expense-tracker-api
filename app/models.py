@@ -15,10 +15,12 @@ class ExpenseCategory(str, Enum):
     UTILITIES = "utilities"
     OTHER = "other"
 
+
 Money = Annotated[
     Decimal,
     Field(max_digits=12, decimal_places=2),
 ]
+
 
 class ExpenseCreate(BaseModel):
     description: str
@@ -48,15 +50,18 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
+
 class UserResponse(BaseModel):
     id: str
     email: EmailStr
     created_at: datetime
 
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-class TokenResponse(BaseModel):     # what successful login will return
+
+class TokenResponse(BaseModel):  # what successful login will return
     access_token: str
     token_type: str

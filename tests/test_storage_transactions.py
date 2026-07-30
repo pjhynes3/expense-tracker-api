@@ -13,9 +13,7 @@ def test_create_expense_rolls_back_when_commit_fails(monkeypatch):
     mock_db = mock_session_context.__enter__.return_value
 
     # Force commit() to fail every time it is called.
-    mock_db.commit.side_effect = RuntimeError(
-        "Simulated database commit failure"
-    )
+    mock_db.commit.side_effect = RuntimeError("Simulated database commit failure")
 
     # Replace the real SessionLocal used by storage.py.
     monkeypatch.setattr(

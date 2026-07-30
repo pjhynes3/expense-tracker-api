@@ -32,6 +32,7 @@ def create_authenticated_headers(client) -> dict:
         "Authorization": f"Bearer {access_token}",
     }
 
+
 @pytest.mark.parametrize(
     "invalid_amount",
     [
@@ -39,7 +40,6 @@ def create_authenticated_headers(client) -> dict:
         -10.50,
     ],
 )
-
 def test_non_positive_amount_returns_bad_request(
     client,
     invalid_amount,
@@ -54,7 +54,7 @@ def test_non_positive_amount_returns_bad_request(
             "amount": invalid_amount,
             "category": "food",
             "merchant": "Test Merchant",
-        }
+        },
     )
 
     assert response.status_code == 400
@@ -69,6 +69,7 @@ def test_non_positive_amount_returns_bad_request(
     assert list_response.status_code == 200
     assert list_response.json() == []
 
+
 def test_invalid_category_returns_unprocessable_entity(client):
     headers = create_authenticated_headers(client)
 
@@ -78,7 +79,7 @@ def test_invalid_category_returns_unprocessable_entity(client):
         json={
             "description": "Invalid category expense",
             "amount": 10.00,
-            "category": "spaceships",           # Pydantic should reject this because spaceships is not an ExpenseCategory enum val
+            "category": "spaceships",  # Pydantic should reject this because spaceships is not an ExpenseCategory enum val
             "merchant": "Test Merchant",
         },
     )
@@ -92,6 +93,7 @@ def test_invalid_category_returns_unprocessable_entity(client):
 
     assert list_response.status_code == 200
     assert list_response.json() == []
+
 
 def test_missing_required_field_returns_unprocessable_entity(client):
     headers = create_authenticated_headers(client)
@@ -107,6 +109,7 @@ def test_missing_required_field_returns_unprocessable_entity(client):
     )
 
     assert response.status_code == 422
+
 
 def test_valid_expense_returns_created(client):
     headers = create_authenticated_headers(client)
@@ -134,6 +137,7 @@ def test_valid_expense_returns_created(client):
     assert "created_at" in expense
     assert "updated_at" in expense
 
+
 def test_expense_amount_is_stored_as_exact_decimal(client):
     headers = create_authenticated_headers(client)
 
@@ -159,9 +163,7 @@ def test_expense_amount_is_stored_as_exact_decimal(client):
     # PostgreSQL NUMERIC is returned through SQLAlchemy as Python Decimal.
     with SessionLocal() as db:
         stored_amount = (
-            db.query(ExpenseRow.amount)
-            .filter(ExpenseRow.id == expense_id)
-            .scalar()
+            db.query(ExpenseRow.amount).filter(ExpenseRow.id == expense_id).scalar()
         )
 
     assert isinstance(stored_amount, Decimal)

@@ -7,7 +7,7 @@ from app.security import ALGORITHM, SECRET_KEY
 
 
 def test_user_can_register_login_and_access_me(client):
-     # Arrange/Act: register a new user.
+    # Arrange/Act: register a new user.
     registration_response = client.post(
         "/register",
         json={
@@ -63,6 +63,7 @@ def test_user_can_register_login_and_access_me(client):
     assert "password" not in current_user
     assert "hashed_password" not in current_user
 
+
 def test_duplicate_registration_returns_bad_request(client):
     user_data = {
         "email": "duplicate-user@example.com",
@@ -86,14 +87,14 @@ def test_duplicate_registration_returns_bad_request(client):
     assert duplicate_response.status_code == 400
     assert duplicate_response.json()["detail"] == "Email is already registered"
 
+
 @pytest.mark.parametrize(
     "login_email, login_password",
     [
         ("valid-user@example.com", "wrong-password"),
         ("unknown-user@example.com", "password123"),
-    ]
+    ],
 )
-
 def test_invalid_login_returns_unauthorized(
     client,
     login_email,
@@ -124,9 +125,11 @@ def test_invalid_login_returns_unauthorized(
     assert login_response.json()["detail"] == "Invalid email or password"
     assert "access_token" not in login_response.json()
 
+
 def test_missing_token_is_rejected(client):
     resposne = client.get("/me")
     assert resposne.status_code == 401
+
 
 def test_tampered_token_is_rejected(client):
     # Arrange: register and log in normally.
@@ -158,9 +161,7 @@ def test_tampered_token_is_rejected(client):
     replacement_character = "A" if payload[0] != "A" else "B"
     tampered_payload = replacement_character + payload[1:]
 
-    tampered_token = (
-        f"{header}.{tampered_payload}.{signature}"
-    )
+    tampered_token = f"{header}.{tampered_payload}.{signature}"
 
     # Act: submit the modified token.
     response = client.get(
@@ -173,6 +174,7 @@ def test_tampered_token_is_rejected(client):
     # Assert: signature verification rejects it.
     assert response.status_code == 401
     assert response.json()["detail"] == "Invalid or expired token"
+
 
 def test_expired_token_is_rejected(client):
     # Arrange: register a real user
