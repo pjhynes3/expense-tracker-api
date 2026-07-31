@@ -4,7 +4,7 @@ from .storage import ExpenseStorage
 
 
 class ExpenseService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.storage = ExpenseStorage()
 
     def create_expense(

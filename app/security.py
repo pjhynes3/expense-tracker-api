@@ -38,7 +38,7 @@ def create_access_token(subject: str) -> str:
 
 def decode_access_token(token: str) -> str | None:
     try:
-        payload = jwt.decode(
+        payload: dict[str, object] = jwt.decode(
             token,
             SECRET_KEY,
             algorithms=[ALGORITHM],
@@ -46,7 +46,7 @@ def decode_access_token(token: str) -> str | None:
 
         subject = payload.get("sub")
 
-        if subject is None:
+        if not isinstance(subject, str):
             return None
         return subject
     except jwt.InvalidTokenError:

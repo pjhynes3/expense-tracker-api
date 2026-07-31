@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import (
     Depends,
     FastAPI,
@@ -7,6 +9,7 @@ from fastapi import (
 )
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from .db_models import UserRow
 from .expense_service import ExpenseService
 from .models import (
     Expense,
@@ -28,8 +31,11 @@ bearer_scheme = HTTPBearer()
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
-):
+    credentials: Annotated[
+        HTTPAuthorizationCredentials,
+        Depends(bearer_scheme),
+    ],
+) -> UserRow:
     token = credentials.credentials
     user_id = decode_access_token(token)
 
@@ -52,8 +58,11 @@ def get_current_user(
     return user
 
 
+CurrentUser = Annotated[UserRow, Depends(get_current_user)]
+
+
 @app.get("/me", response_model=UserResponse)
-async def read_current_user(current_user=Depends(get_current_user)):
+async def read_current_user(current_user: CurrentUser) -> UserResponse:
     return UserResponse(
         id=current_user.id, email=current_user.email, created_at=current_user.created_at
     )
@@ -61,8 +70,9 @@ async def read_current_user(current_user=Depends(get_current_user)):
 
 @app.post("/expenses", response_model=Expense, status_code=201)
 async def create_expense(
-    expense_data: ExpenseCreate, current_user=Depends(get_current_user)
-):
+    expense_data: ExpenseCreate,
+    current_user: CurrentUser,
+) -> Expense:
     try:
         return expense_service.create_expense(
             expense_data,
@@ -73,7 +83,7 @@ async def create_expense(
 
 
 @app.post("/register", response_model=UserResponse, status_code=201)
-async def register_user(user_data: UserCreate):
+async def register_user(user_data: UserCreate) -> UserResponse:
     try:
         return user_service.register_user(user_data)
     except ValueError as error:
@@ -90,7 +100,7 @@ async def register_user(user_data: UserCreate):
 )
 async def login(
     login_data: UserLogin,
-):
+) -> TokenResponse:
     user = user_service.authenticate_user(login_data)
 
     if user is None:
@@ -107,7 +117,10 @@ async def login(
 
 
 @app.get("/expenses/{expense_id}", response_model=Expense)
-async def get_expense(expense_id: str, current_user=Depends(get_current_user)):
+async def get_expense(
+    expense_id: str,
+    current_user: CurrentUser,
+) -> Expense:
     expense = expense_service.get_expense(
         expense_id,
         current_user.id,
@@ -119,8 +132,10 @@ async def get_expense(expense_id: str, current_user=Depends(get_current_user)):
 
 @app.put("/expenses/{expense_id}", response_model=Expense)
 async def update_expense(
-    expense_id: str, updates: ExpenseUpdate, current_user=Depends(get_current_user)
-):
+    expense_id: str,
+    updates: ExpenseUpdate,
+    current_user: CurrentUser,
+) -> Expense:
     try:
         updated_expense = expense_service.update_expense(
             expense_id,
@@ -136,7 +151,7 @@ async def update_expense(
 
 
 @app.delete("/expenses/{expense_id}")
-async def delete_expense(expense_id: str, current_user=Depends(get_current_user)):
+async def delete_expense(expense_id: str, current_user: CurrentUser) -> dict[str, str]:
     deleted = expense_service.delete_expense(
         expense_id,
         current_user.id,
@@ -148,8 +163,8 @@ async def delete_expense(expense_id: str, current_user=Depends(get_current_user)
 
 @app.get("/expenses", response_model=list[Expense])
 async def list_expenses(
-    current_user=Depends(get_current_user), category: str | None = Query(None)
-):
+    current_user: CurrentUser, category: Annotated[str | None, Query()] = None
+) -> list[Expense]:
     return expense_service.list_expenses(
         current_user.id,
         category,
