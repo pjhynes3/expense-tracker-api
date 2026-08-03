@@ -30,6 +30,11 @@ user_service = UserService()
 bearer_scheme = HTTPBearer()
 
 
+@app.get("/health")
+async def health_check() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 def get_current_user(
     credentials: Annotated[
         HTTPAuthorizationCredentials,
