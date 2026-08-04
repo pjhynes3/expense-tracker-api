@@ -43,7 +43,7 @@ def readiness_check(response: Response) -> dict[str, str]:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return {"status": "not ready"}
 
-    return {"status" :"ready"}
+    return {"status": "ready"}
 
 
 def get_current_user(
