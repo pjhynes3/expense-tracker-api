@@ -5,10 +5,12 @@ from fastapi import (
     FastAPI,
     HTTPException,
     Query,
+    Response,
     status,
 )
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from .database import is_database_ready
 from .db_models import UserRow
 from .expense_service import ExpenseService
 from .models import (
@@ -33,6 +35,15 @@ bearer_scheme = HTTPBearer()
 @app.get("/health")
 async def health_check() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/ready")
+def readiness_check(response: Response) -> dict[str, str]:
+    if not is_database_ready():
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {"status": "not ready"}
+
+    return {"status" :"ready"}
 
 
 def get_current_user(
