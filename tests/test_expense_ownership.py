@@ -128,9 +128,13 @@ def test_users_only_list_their_own_expenses(client):
     assert user_b_list_response.status_code == 200
 
     # Assert: each response contains exactly that user's expense.
-    user_a_returned_ids = {expense["id"] for expense in user_a_list_response.json()}
+    user_a_returned_ids = {
+        expense["id"] for expense in user_a_list_response.json()["items"]
+    }
 
-    user_b_returned_ids = {expense["id"] for expense in user_b_list_response.json()}
+    user_b_returned_ids = {
+        expense["id"] for expense in user_b_list_response.json()["items"]
+    }
 
     assert user_a_returned_ids == {user_a_expense_id}
     assert user_b_returned_ids == {user_b_expense_id}
@@ -342,7 +346,7 @@ def test_category_filter_only_returns_current_users_matching_expenses(client):
     # Assert: only User A's matching food expense is returned.
     assert response.status_code == 200
 
-    returned_expenses = response.json()
+    returned_expenses = response.json()["items"]
     returned_ids = {expense["id"] for expense in returned_expenses}
 
     assert returned_ids == {user_a_food_id}

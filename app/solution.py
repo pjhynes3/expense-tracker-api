@@ -16,6 +16,7 @@ from .expense_service import ExpenseService
 from .models import (
     Expense,
     ExpenseCreate,
+    ExpensePage,
     ExpenseUpdate,
     TokenResponse,
     UserCreate,
@@ -177,11 +178,16 @@ async def delete_expense(expense_id: str, current_user: CurrentUser) -> dict[str
     return {"message": "Expense deleted successfully"}
 
 
-@app.get("/expenses", response_model=list[Expense])
+@app.get("/expenses", response_model=ExpensePage)
 async def list_expenses(
-    current_user: CurrentUser, category: Annotated[str | None, Query()] = None
-) -> list[Expense]:
+    current_user: CurrentUser,
+    category: Annotated[str | None, Query()] = None,
+    page: Annotated[int, Query(ge=1)] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> ExpensePage:
     return expense_service.list_expenses(
-        current_user.id,
-        category,
+        user_id=current_user.id,
+        category=category,
+        page=page,
+        page_size=page_size,
     )

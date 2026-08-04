@@ -67,7 +67,7 @@ def test_non_positive_amount_returns_bad_request(
     )
 
     assert list_response.status_code == 200
-    assert list_response.json() == []
+    assert list_response.json()["items"] == []
 
 
 def test_invalid_category_returns_unprocessable_entity(client):
@@ -92,7 +92,7 @@ def test_invalid_category_returns_unprocessable_entity(client):
     )
 
     assert list_response.status_code == 200
-    assert list_response.json() == []
+    assert list_response.json()["items"] == []
 
 
 def test_missing_required_field_returns_unprocessable_entity(client):

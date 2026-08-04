@@ -137,16 +137,30 @@ class ExpenseStorage:
         self,
         user_id: str,
         category: str | None = None,
-    ) -> list[Expense]:
+        page: int = 1,
+        page_size: int = 20,
+    ) -> tuple[list[Expense], int]:
         with SessionLocal() as db:
             query = db.query(ExpenseRow).filter(ExpenseRow.user_id == user_id)
 
             if category is not None:
                 query = query.filter(ExpenseRow.category == category)
 
-            expense_rows = query.all()
+            total = query.count()
+            offset = (page - 1) * page_size
 
-            return [self._row_to_expense(row) for row in expense_rows]
+            expense_rows = (
+                query.order_by(
+                    ExpenseRow.created_at.desc(),
+                    ExpenseRow.id.desc(),
+                )
+                .offset(offset)
+                .limit(page_size)
+                .all()
+            )
+
+            expenses = [self._row_to_expense(row) for row in expense_rows]
+            return expenses, total
 
 
 class UserStorage:

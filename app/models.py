@@ -45,6 +45,14 @@ class Expense(BaseModel):
     updated_at: datetime
 
 
+class ExpensePage(BaseModel):
+    items: list[Expense]
+    total: int
+    page: int
+    page_size: int
+    pages: int
+
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str

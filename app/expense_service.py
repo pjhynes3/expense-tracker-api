@@ -1,5 +1,5 @@
 from .cache import cache_delete, cache_get, cache_set
-from .models import Expense, ExpenseCreate, ExpenseUpdate
+from .models import Expense, ExpenseCreate, ExpensePage, ExpenseUpdate
 from .storage import ExpenseStorage
 
 
@@ -87,12 +87,26 @@ class ExpenseService:
         self,
         user_id: str,
         category: str | None = None,
-    ) -> list[Expense]:
+        page: int = 1,
+        page_size: int = 20,
+    ) -> ExpensePage:
         """
-        List expenses with optional category filtering.
+        Return one page of expenses with pagination metadata.
         Do not cache list operations.
         """
-        return self.storage.list_expenses(
-            user_id,
-            category,
+        expenses, total = self.storage.list_expenses(
+            user_id=user_id,
+            category=category,
+            page=page,
+            page_size=page_size,
+        )
+
+        pages = (total + page_size - 1) // page_size
+
+        return ExpensePage(
+            items=expenses,
+            total=total,
+            page=page,
+            page_size=page_size,
+            pages=pages,
         )
