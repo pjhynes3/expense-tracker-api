@@ -137,6 +137,8 @@ class ExpenseStorage:
         self,
         user_id: str,
         category: str | None = None,
+        start_at: datetime | None = None,
+        end_before: datetime | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[Expense], int]:
@@ -145,6 +147,12 @@ class ExpenseStorage:
 
             if category is not None:
                 query = query.filter(ExpenseRow.category == category)
+
+            if start_at is not None:
+                query = query.filter(ExpenseRow.created_at >= start_at)
+
+            if end_before is not None:
+                query = query.filter(ExpenseRow.created_at < end_before)
 
             total = query.count()
             offset = (page - 1) * page_size

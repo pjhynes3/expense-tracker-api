@@ -1,3 +1,5 @@
+from datetime import UTC, date, datetime, time, timedelta
+
 from .cache import cache_delete, cache_get, cache_set
 from .models import Expense, ExpenseCreate, ExpensePage, ExpenseUpdate
 from .storage import ExpenseStorage
@@ -87,6 +89,8 @@ class ExpenseService:
         self,
         user_id: str,
         category: str | None = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> ExpensePage:
@@ -94,9 +98,31 @@ class ExpenseService:
         Return one page of expenses with pagination metadata.
         Do not cache list operations.
         """
+
+        if start_date is not None and end_date is not None and start_date > end_date:
+            raise ValueError("start_date must be on or before end_date")
+
+        start_at = (
+            datetime.combine(start_date, time.min, tzinfo=UTC)
+            if start_date is not None
+            else None
+        )
+
+        end_before = (
+            datetime.combine(
+                end_date + timedelta(days=1),
+                time.min,
+                tzinfo=UTC,
+            )
+            if end_date is not None
+            else None
+        )
+
         expenses, total = self.storage.list_expenses(
             user_id=user_id,
             category=category,
+            start_at=start_at,
+            end_before=end_before,
             page=page,
             page_size=page_size,
         )

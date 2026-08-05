@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Annotated
 
 from fastapi import (
@@ -182,12 +183,22 @@ async def delete_expense(expense_id: str, current_user: CurrentUser) -> dict[str
 async def list_expenses(
     current_user: CurrentUser,
     category: Annotated[str | None, Query()] = None,
+    start_date: Annotated[date | None, Query()] = None,
+    end_date: Annotated[date | None, Query()] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> ExpensePage:
-    return expense_service.list_expenses(
-        user_id=current_user.id,
-        category=category,
-        page=page,
-        page_size=page_size,
-    )
+    try:
+        return expense_service.list_expenses(
+            user_id=current_user.id,
+            category=category,
+            start_date=start_date,
+            end_date=end_date,
+            page=page,
+            page_size=page_size,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        )
