@@ -1,5 +1,6 @@
 import uuid
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from .database import SessionLocal
 from .db_models import ExpenseRow, UserRow
@@ -139,6 +140,8 @@ class ExpenseStorage:
         category: str | None = None,
         start_at: datetime | None = None,
         end_before: datetime | None = None,
+        min_amount: Decimal | None = None,
+        max_amount: Decimal | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[Expense], int]:
@@ -153,6 +156,12 @@ class ExpenseStorage:
 
             if end_before is not None:
                 query = query.filter(ExpenseRow.created_at < end_before)
+
+            if min_amount is not None:
+                query = query.filter(ExpenseRow.amount >= min_amount)
+
+            if max_amount is not None:
+                query = query.filter(ExpenseRow.amount <= max_amount)
 
             total = query.count()
             offset = (page - 1) * page_size

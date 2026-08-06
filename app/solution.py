@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 from typing import Annotated
 
 from fastapi import (
@@ -185,6 +186,14 @@ async def list_expenses(
     category: Annotated[str | None, Query()] = None,
     start_date: Annotated[date | None, Query()] = None,
     end_date: Annotated[date | None, Query()] = None,
+    min_amount: Annotated[
+        Decimal | None,
+        Query(ge=0, max_digits=12, decimal_places=2),
+    ] = None,
+    max_amount: Annotated[
+        Decimal | None,
+        Query(ge=0, max_digits=12, decimal_places=2),
+    ] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> ExpensePage:
@@ -194,6 +203,8 @@ async def list_expenses(
             category=category,
             start_date=start_date,
             end_date=end_date,
+            min_amount=min_amount,
+            max_amount=max_amount,
             page=page,
             page_size=page_size,
         )

@@ -1,4 +1,5 @@
 from datetime import UTC, date, datetime, time, timedelta
+from decimal import Decimal
 
 from .cache import cache_delete, cache_get, cache_set
 from .models import Expense, ExpenseCreate, ExpensePage, ExpenseUpdate
@@ -91,6 +92,8 @@ class ExpenseService:
         category: str | None = None,
         start_date: date | None = None,
         end_date: date | None = None,
+        min_amount: Decimal | None = None,
+        max_amount: Decimal | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> ExpensePage:
@@ -101,6 +104,13 @@ class ExpenseService:
 
         if start_date is not None and end_date is not None and start_date > end_date:
             raise ValueError("start_date must be on or before end_date")
+
+        if (
+            min_amount is not None
+            and max_amount is not None
+            and min_amount > max_amount
+        ):
+            raise ValueError("min_amount must be less than or equal to max_amount")
 
         start_at = (
             datetime.combine(start_date, time.min, tzinfo=UTC)
@@ -123,6 +133,8 @@ class ExpenseService:
             category=category,
             start_at=start_at,
             end_before=end_before,
+            min_amount=min_amount,
+            max_amount=max_amount,
             page=page,
             page_size=page_size,
         )
