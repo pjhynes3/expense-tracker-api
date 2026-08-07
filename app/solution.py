@@ -194,6 +194,10 @@ async def list_expenses(
         Decimal | None,
         Query(ge=0, max_digits=12, decimal_places=2),
     ] = None,
+    merchant: Annotated[
+        str | None,
+        Query(min_length=1, max_length=100),
+    ] = None,
     page: Annotated[int, Query(ge=1)] = 1,
     page_size: Annotated[int, Query(ge=1, le=100)] = 20,
 ) -> ExpensePage:
@@ -205,6 +209,7 @@ async def list_expenses(
             end_date=end_date,
             min_amount=min_amount,
             max_amount=max_amount,
+            merchant=merchant,
             page=page,
             page_size=page_size,
         )

@@ -94,6 +94,7 @@ class ExpenseService:
         end_date: date | None = None,
         min_amount: Decimal | None = None,
         max_amount: Decimal | None = None,
+        merchant: str | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> ExpensePage:
@@ -111,6 +112,10 @@ class ExpenseService:
             and min_amount > max_amount
         ):
             raise ValueError("min_amount must be less than or equal to max_amount")
+
+        merchant_search = merchant.strip() if merchant is not None else None
+        if merchant_search == "":
+            raise ValueError("merchant must not be blank")
 
         start_at = (
             datetime.combine(start_date, time.min, tzinfo=UTC)
@@ -135,6 +140,7 @@ class ExpenseService:
             end_before=end_before,
             min_amount=min_amount,
             max_amount=max_amount,
+            merchant_search=merchant_search,
             page=page,
             page_size=page_size,
         )

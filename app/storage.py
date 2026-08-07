@@ -142,6 +142,7 @@ class ExpenseStorage:
         end_before: datetime | None = None,
         min_amount: Decimal | None = None,
         max_amount: Decimal | None = None,
+        merchant_search: str | None = None,
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[Expense], int]:
@@ -162,6 +163,9 @@ class ExpenseStorage:
 
             if max_amount is not None:
                 query = query.filter(ExpenseRow.amount <= max_amount)
+
+            if merchant_search is not None:
+                query = query.filter(ExpenseRow.merchant.ilike(f"%{merchant_search}%"))
 
             total = query.count()
             offset = (page - 1) * page_size
